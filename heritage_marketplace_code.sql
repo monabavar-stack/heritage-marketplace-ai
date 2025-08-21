@@ -143,4 +143,21 @@ FROM heritage_analysis
 ORDER BY heritage_network_impact DESC;
 
 
+  -- Advanced Analysis 2: Cross-Cultural Fusion Opportunities
+-- Identify opportunities for cross-cultural artisan collaborations
+SELECT 
+  cd.customer_id,
+  cd.background as customer_profile,
+  STRING_AGG(DISTINCT ast.background, ' + ') as fusion_artisan_combo,
+  COUNT(DISTINCT ast.artisan_id) as artisans_in_fusion,
+  AVG(cm.cultural_match_score) as fusion_compatibility_score
+FROM `lithe-key-469707-a3.marketplace_data.cultural_matches` cm
+JOIN `lithe-key-469707-a3.marketplace_data.customer_desires` cd ON cm.customer_id = cd.customer_id
+JOIN `lithe-key-469707-a3.marketplace_data.artisan_stories` ast ON cm.artisan_id = ast.artisan_id
+WHERE cm.cultural_match_score > 0.8
+GROUP BY cd.customer_id, cd.background
+HAVING COUNT(DISTINCT ast.artisan_id) > 1
+ORDER BY fusion_compatibility_score DESC;
+
+
   
