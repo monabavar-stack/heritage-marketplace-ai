@@ -113,3 +113,34 @@ SELECT
   'PERFECT MATCH - Both share Persian cultural heritage' as explanation
 FROM `lithe-key-469707-a3.marketplace_data.cultural_matches`
 WHERE customer_id = 'CUST_001' AND match_rank = 1;
+
+
+  -- Advanced Analysis: Cultural Heritage Impact
+-- Analyzes cultural preservation effectiveness across different heritage types
+WITH heritage_analysis AS (
+  SELECT 
+    CASE 
+      WHEN REGEXP_CONTAINS(LOWER(ast.background), r'persian|iranian') THEN 'Persian'
+      WHEN REGEXP_CONTAINS(LOWER(ast.background), r'japanese') THEN 'Japanese'
+      WHEN REGEXP_CONTAINS(LOWER(ast.background), r'italian') THEN 'Italian'
+      ELSE 'Other'
+    END AS heritage_type,
+    COUNT(DISTINCT cm.customer_id) as customers_reached,
+    AVG(cm.cultural_match_score) as avg_cultural_alignment,
+    COUNT(DISTINCT ast.artisan_id) as artisans_supported
+  FROM `lithe-key-469707-a3.marketplace_data.cultural_matches` cm
+  JOIN `lithe-key-469707-a3.marketplace_data.artisan_stories` ast ON cm.artisan_id = ast.artisan_id
+  WHERE cm.cultural_match_score > 0.7
+  GROUP BY heritage_type
+)
+SELECT 
+  heritage_type,
+  customers_reached,
+  artisans_supported,
+  ROUND(avg_cultural_alignment, 3) as cultural_preservation_score,
+  customers_reached * artisans_supported as heritage_network_impact
+FROM heritage_analysis
+ORDER BY heritage_network_impact DESC;
+
+
+  
